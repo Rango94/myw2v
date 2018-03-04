@@ -42,27 +42,31 @@ public class Model {
         }
         double F=0;
         Vector term_v=getVector(term);
-        List<String> terms=new ArrayList<String>();
-        List<Double> vecs=new ArrayList<Double>();
-        for(int i=0;i<num;i++) {
-            String name="";
-            double d=10000;
-            for (String e : termlist) {
-                if(!e.equals(term)) {
-                    Vector e_v=getVector(e);
-                    double temp = Vector.dis(e_v, term_v);
-                    if (temp < d && temp >= F && !terms.contains(e)) {
-                        d = temp;
-                        name = e;
+        if(term_v==null){
+            System.out.println("null");
+        }else {
+            List<String> terms = new ArrayList<String>();
+            List<Double> vecs = new ArrayList<Double>();
+            for (int i = 0; i < num; i++) {
+                String name = "";
+                double d = 10000;
+                for (String e : termlist) {
+                    if (!e.equals(term)) {
+                        Vector e_v = getVector(e);
+                        double temp = Vector.dis(e_v, term_v);
+                        if (temp < d && temp >= F && !terms.contains(e)) {
+                            d = temp;
+                            name = e;
+                        }
                     }
                 }
+                terms.add(name);
+                vecs.add(d);
+                F = d;
             }
-            terms.add(name);
-            vecs.add(d);
-            F=d;
-        }
-        for(int i=0;i<terms.size();i++){
-            System.out.println(terms.get(i)+":"+vecs.get(i));
+            for (int i = 0; i < terms.size(); i++) {
+                System.out.println(terms.get(i) + ":" + vecs.get(i));
+            }
         }
     }
 

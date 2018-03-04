@@ -16,7 +16,8 @@ public class Trainer {
     Model md;
     int windos;
     boolean weatherfill;
-    double step=0.01;
+    double step=0.025;
+    double Step=step;
     int maxloop=10000;
     HashMap<String,Integer> dictionary;
 
@@ -25,16 +26,18 @@ public class Trainer {
         this.windos=windos;
         this.md=md;
         this.step=step;
+        this.Step=step;
         this.hm=md.hm;
         this.dictionary=hm.dictionary;
         cr=new corpusReader(md.PATH,windos,weatherfill,md.hm.lowwords);
     }
 
     public Model train(){
+        double k=0.1;
         for(int i=0;i<maxloop;i++){
             trainline();
             if(i%20==0) {
-                step=step*(1-(double)i/maxloop);
+                step=Step*(1-(double)i/maxloop);
                 System.out.println(md.getVector("mother"));
                 System.out.println(md.getVector("father"));
                 System.out.println(md.dis("mother","father"));
@@ -44,6 +47,10 @@ public class Trainer {
                 System.out.println(md.dis("mother","queen"));
                 System.out.println("training has completed "+Double.toString((double)i/maxloop*100)+"%");
                 System.out.println("---------------------------------");
+            }
+            if((double)i/maxloop>k){
+                k+=0.1;
+                md.Savemodel("E:\\myw2v\\first.model");
             }
             if(i%5==0){
 //                System.out.println(hm.getVectorofnotleafbyHuffman("-1"));
@@ -80,25 +87,34 @@ public class Trainer {
                     Vector addofinput = new Vector(inputvector.getSize(), 0);
                     int path=0;
                     for (String subpath : pathlist) {
+                        int flag=Math.random()>0.9999?1:1;
                         Vector pathvector = hm.getVectorofnotleafbyHuffman(subpath);
-//                        System.out.println("参数向量为："+pathvector);
+                        if(flag==0) {
+                        System.out.println("参数向量为："+pathvector);
+                        }
                         double q = active(Vector.mult(pathvector, inputvector));
-//                        System.out.println("激活函数参数："+Double.toString(Vector.mult(pathvector, inputvector)));
-//                        System.out.println("激活函数："+Double.toString(q));
+                        if(flag==0) {
+                        System.out.println("激活函数参数："+Double.toString(Vector.mult(pathvector, inputvector)));
+                        System.out.println("激活函数："+Double.toString(q));
+                        }
                         double g = step * (1 - Huffmanofterm[path] - q);
                         path++;
-//                        System.out.println("g等于："+Double.toString(g)+"\t学习率为："+Double.toString(step));
+                        if(flag==0) {
+                        System.out.println("g等于："+Double.toString(g)+"\t学习率为："+Double.toString(step));
+                        }
                         addofinput = Vector.adds(addofinput, Vector.mult(g, pathvector));
-//                        System.out.println("term增量为："+addofinput+"\n");
+                        if(flag==0) {
+                        System.out.println("term增量为："+addofinput);
 
-//                        hm.setVectorofnotleafbyHuffman(subpath, Vector.adds(Vector.mult(g, inputvector), pathvector));
+                        hm.setVectorofnotleafbyHuffman(subpath, Vector.adds(Vector.mult(g, inputvector), pathvector));
+                        }
                         Vector tmp=Vector.mult(g, inputvector);
                         for(int i=0;i<pathvector.getSize();i++) {
                             pathvector.vector[i]=pathvector.vector[i]+tmp.vector[i];
                         }
-//                        if(Math.random()>0.95) {
-//                            System.out.println("参数向量增量为：" + Vector.mult(g, inputvector));
-//                        }
+                      if(flag==0) {
+                            System.out.print("参数向量增量为：" + Vector.mult(g, inputvector)+"\n"+"\n");
+                       }
                     }
                     for (int i = 0; i < e.size(); i++) {
                         if (i != windos) {
