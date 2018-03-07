@@ -83,12 +83,12 @@ public class Trainer {
                     System.out.println(e.get(windos));
                 }
                 if(Huffmanofterm!=null) {
-                    List<String> pathlist = generatepath(Huffmanofterm);
+                    List<byte[]> pathlist = generatepath(Huffmanofterm);
                     Vector addofinput = new Vector(inputvector.getSize(), 0);
                     int path=0;
-                    for (String subpath : pathlist) {
+                    for (byte[] subpath : pathlist) {
                         int flag=Math.random()>0.9999?1:1;
-                        Vector pathvector = hm.getVectorofnotleafbyHuffman(subpath);
+                        Vector pathvector = hm.getNodevector(subpath);
                         if(flag==0) {
                         System.out.println("参数向量为："+pathvector);
                         }
@@ -105,8 +105,7 @@ public class Trainer {
                         addofinput = Vector.adds(addofinput, Vector.mult(g, pathvector));
                         if(flag==0) {
                         System.out.println("term增量为："+addofinput);
-
-                        hm.setVectorofnotleafbyHuffman(subpath, Vector.adds(Vector.mult(g, inputvector), pathvector));
+//                        hm.setVectorofnotleafbyHuffman(subpath, Vector.adds(Vector.mult(g, inputvector), pathvector));
                         }
                         Vector tmp=Vector.mult(g, inputvector);
                         for(int i=0;i<pathvector.getSize();i++) {
@@ -145,12 +144,16 @@ public class Trainer {
         return 1/(1+Math.pow(Math.E,-x));
     }
 //    生成路径序列以便训练
-    private List<String> generatepath(byte[] path){
-        List<String> pathlist=new ArrayList<String>();
-        pathlist.add("-1");
-        String tmp="";
+    private List<byte[]> generatepath(byte[] path){
+        List<byte[]> pathlist=new ArrayList<byte[]>();
+        pathlist.add(new byte[]{-1});
+        List<Byte> tmpb=new ArrayList<Byte>();
         for(int i=0;i<path.length-1;i++){
-            tmp+=Byte.toString(path[i]);
+            tmpb.add(path[i]);
+            byte[] tmp=new byte[tmpb.size()];
+            for(int j=0;j<tmp.length;j++){
+                tmp[j]=tmpb.get(j);
+            }
             pathlist.add(tmp);
         }
         return pathlist;

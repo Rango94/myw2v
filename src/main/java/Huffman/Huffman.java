@@ -94,8 +94,27 @@ public class Huffman {
     }
 
     public Vector getVectorofnotleafbyHuffman(String huffman){
+
+
         return huff_vector.get(huffman);
     }
+
+    public Vector getNodevector(byte[] path){
+        node n=Tree;
+        for(int i=0;i<path.length;i++){
+            if(i==0){
+                n=n.getLeftnode();
+            }
+            if(i==1){
+                n=n.getRightnode();
+            }
+        }
+        return n.getVec();
+    }
+
+
+
+
 
     public boolean equals(byte[] a,byte[] b){
         if(a.length!=b.length){
@@ -294,14 +313,15 @@ public class Huffman {
         for (int i=0;i<code.length();i++){
             out[i]=Byte.parseByte(code.substring(i,i+1));
         }
-        if(out.length>maxlenthofhuffman){
-            maxlenthofhuffman=out.length;
+        if(code.length()>maxlenthofhuffman){
+            maxlenthofhuffman=code.length();
         }
         return out;
     }
 
 //    对单个元素进行编码
 //    我又检查了一边这个函数应该是对的，但这个逻辑好牛逼，我好像现在想不到这个逻辑了
+//    1,0
     private String code(HashMap<String,String> leftList,HashMap<String,String> rightList,String name){
         String out="";
         while(leftList.containsKey(name) || rightList.containsKey(name)){

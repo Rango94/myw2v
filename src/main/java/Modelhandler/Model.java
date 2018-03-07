@@ -40,7 +40,7 @@ public class Model {
         if(num>50){
             num=50;
         }
-        double F=0;
+        double F=100000;
         Vector term_v=getVector(term);
         if(term_v==null){
             System.out.println("null");
@@ -49,12 +49,12 @@ public class Model {
             List<Double> vecs = new ArrayList<Double>();
             for (int i = 0; i < num; i++) {
                 String name = "";
-                double d = 10000;
+                double d = 0;
                 for (String e : termlist) {
                     if (!e.equals(term)) {
                         Vector e_v = getVector(e);
                         double temp = Vector.dis(e_v, term_v);
-                        if (temp < d && temp >= F && !terms.contains(e)) {
+                        if (temp > d && temp <= F && !terms.contains(e)) {
                             d = temp;
                             name = e;
                         }
@@ -137,7 +137,7 @@ public class Model {
         file.writer("this a word2vec model created by WNZ"+"\n");
         for(String e:term){
             for(String e1:model.get(e).keySet()){
-                file.writer(e1+":"+getVector(e1).toString()+"\n");
+                file.writer(e1+":"+getVector(e1).normalization().toString()+"\n");
             }
         }
         file.close();
