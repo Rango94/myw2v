@@ -102,10 +102,10 @@ public class Huffman {
     public Vector getNodevector(byte[] path){
         node n=Tree;
         for(int i=0;i<path.length;i++){
-            if(i==0){
+            if(path[i]==1){
                 n=n.getLeftnode();
             }
-            if(i==1){
+            if(path[i]==0){
                 n=n.getRightnode();
             }
         }

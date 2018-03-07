@@ -38,6 +38,7 @@ public class Trainer {
             trainline();
             if(i%20==0) {
                 step=Step*(1-(double)i/maxloop);
+                System.out.println(md.hm.getNodevector(new byte[]{1,0,1}));
                 System.out.println(md.getVector("mother"));
                 System.out.println(md.getVector("father"));
                 System.out.println(md.dis("mother","father"));

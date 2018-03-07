@@ -137,7 +137,7 @@ public class Model {
         file.writer("this a word2vec model created by WNZ"+"\n");
         for(String e:term){
             for(String e1:model.get(e).keySet()){
-                file.writer(e1+":"+getVector(e1).toString()+"\n");
+                file.writer(e1+":"+getVector(e1).normalization().toString()+"\n");
             }
         }
         file.close();
