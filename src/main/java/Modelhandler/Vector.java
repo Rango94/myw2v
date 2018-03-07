@@ -48,7 +48,7 @@ public class Vector {
 
     public static double mult(Vector a,Vector b){
         double out=0;
-        for(int i=0;i<Size;i++){
+        for(int i=0;i<a.getSize();i++){
             out+=a.vector[i]*b.vector[i];
         }
         return out;
@@ -93,14 +93,30 @@ public class Vector {
         return vec;
     }
 
-    public static double dis(Vector a,Vector b){
-        double out=0.0;
-        double stand=0.0;
-        for(int i=0;i<a.getSize();i++){
-            stand+=(Math.abs(a.vector[i])+Math.abs(b.vector[i]))/2;
-            out+=Math.pow((a.vector[i]-b.vector[i]),2)/Math.pow(stand,2);
+    public Vector normalization(){
+        Vector out=new Vector(vector.length,0);
+        double len=0;
+        for(int i=0;i<getSize();i++){
+            len+=vector[i]*vector[i];
         }
-        return Math.pow(out,0.5);
+        len=Math.pow(len,0.5);
+        for(int i=0;i<getSize();i++){
+            out.vector[i]=this.vector[i]/len;
+        }
+        return out;
     }
 
+
+    public static double dis(Vector a,Vector b){
+        double up=mult(a,b);
+        double downa=0;
+        double downb=0;
+        for(int i=0;i<a.getSize();i++){
+            downa+=a.vector[i]*a.vector[i];
+            downb+=b.vector[i]*b.vector[i];
+        }
+        downa=Math.pow(downa,0.5);
+        downb=Math.pow(downb,0.5);
+        return up/(downa*downb);
+    }
 }

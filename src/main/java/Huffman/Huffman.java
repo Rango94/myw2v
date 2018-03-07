@@ -94,8 +94,27 @@ public class Huffman {
     }
 
     public Vector getVectorofnotleafbyHuffman(String huffman){
+
+
         return huff_vector.get(huffman);
     }
+
+    public Vector getNodevector(byte[] path){
+        node n=Tree;
+        for(int i=0;i<path.length;i++){
+            if(i==0){
+                n=n.getLeftnode();
+            }
+            if(i==1){
+                n=n.getRightnode();
+            }
+        }
+        return n.getVec();
+    }
+
+
+
+
 
     public boolean equals(byte[] a,byte[] b){
         if(a.length!=b.length){
