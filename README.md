@@ -3,8 +3,8 @@ a test<br>
 a practice<br>
 trying to complete a word2vec with java.<br>
 it's a simple word2vec, although the project has no errors, but there are some questions with its correctness.<br>
-
-run example.java
+项目中构建了霍夫曼树，实现了cbow和skip-gram模型。目前还没有实现负采样训练方法。<br>
+run example.java<br>
 
 ok it's work, happy like a child.<br>
 earth<br>
@@ -23,4 +23,4 @@ water:0.05696837295875792<br>
 universe:0.05633267777105747<br>
 orbit:0.05537251151899638<br>
 saturn:0.054351287569985245<br>
-<br>
+
