@@ -24,6 +24,7 @@ public class example {
 //        System.out.println(Vector.dis(new Vector(new double[]{1,1}).normalization(),new Vector(new double[]{2,2}).normalization()));
         md.Savemodel("E:\\myw2v\\first.model");
 
+
 //        读取模型
         Model md1=new Model();
         md1.Loadmodel("E:\\myw2v\\first.model");
