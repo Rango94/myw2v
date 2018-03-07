@@ -25,6 +25,7 @@ public class example {
         md.Savemodel("E:\\myw2v\\first.model");
 
 
+
 //        读取模型
         Model md1=new Model();
         md1.Loadmodel("E:\\myw2v\\first.model");
