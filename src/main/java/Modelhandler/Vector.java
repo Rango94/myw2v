@@ -1,14 +1,14 @@
 package Modelhandler;
 
 public class Vector {
-    public double[] vector;
+    public float[] vector;
     static int Size=0;
 
     public int getSize() {
         return Size;
     }
 
-    public Vector(double[] vec){
+    public Vector(float[] vec){
         vector=vec;
         Size=vec.length;
     }
@@ -17,7 +17,7 @@ public class Vector {
     }
 
     public Vector(int size){
-        double[] vec=new double[size];
+        float[] vec=new float[size];
         for(int i=0;i<size;i++){
             vec[i]=(Math.random()-0.5)/size;
         }
@@ -26,7 +26,7 @@ public class Vector {
     }
 
     public Vector(int size,int num){
-        double[] vec=new double[size];
+        float[] vec=new float[size];
         for(int i=0;i<size;i++){
             vec[i]=num;
         }
@@ -37,24 +37,24 @@ public class Vector {
     public static Vector adds(Vector a,Vector b){
         if(b.getSize()!=Size){
             System.out.println("长度不匹配");
-            return new Vector(new double[Size+1]);
+            return new Vector(new float[Size+1]);
         }
-        double[] out=new double[a.getSize()];
+        float[] out=new float[a.getSize()];
         for(int i=0;i<Size;i++){
             out[i]=a.vector[i]+b.vector[i];
         }
         return new Vector(out);
     }
 
-    public static double mult(Vector a,Vector b){
-        double out=0;
+    public static float mult(Vector a,Vector b){
+        float out=0;
         for(int i=0;i<a.getSize();i++){
             out+=a.vector[i]*b.vector[i];
         }
         return out;
     }
 
-    public static Vector mult(double b,Vector vec){
+    public static Vector mult(float b,Vector vec){
         Vector out=new Vector(Size,0);
         for(int i=0;i<Size;i++){
             out.vector[i]=vec.vector[i]*b;
@@ -76,26 +76,26 @@ public class Vector {
 
 
 
-    public double[] getVector() {
+    public float[] getVector() {
         return vector;
     }
 
-    public void setVector(double[] vector) {
+    public void setVector(float[] vector) {
         this.Size=vector.length;
         this.vector = vector;
     }
     @Override
     public String toString(){
         String vec="";
-        for(double e:vector){
-            vec+=Double.toString(e)+"\t";
+        for(float e:vector){
+            vec+=Float.toString(e)+"\t";
         }
         return vec;
     }
 
     public Vector normalization(){
         Vector out=new Vector(vector.length,0);
-        double len=0;
+        float len=0;
         for(int i=0;i<getSize();i++){
             len+=vector[i]*vector[i];
         }
@@ -107,10 +107,10 @@ public class Vector {
     }
 
 
-    public static double dis(Vector a,Vector b){
-        double up=mult(a,b);
-        double downa=0;
-        double downb=0;
+    public static float dis(Vector a,Vector b){
+        float up=mult(a,b);
+        float downa=0;
+        float downb=0;
         for(int i=0;i<a.getSize();i++){
             downa+=a.vector[i]*a.vector[i];
             downb+=b.vector[i]*b.vector[i];

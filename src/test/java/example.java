@@ -15,7 +15,7 @@ public class example {
         Model md=new Model("F:/w2vcorpus/text8.txt",size);
 //
 //        新建训练类并设定参数
-        Trainer tr=new Trainer(md,3,false,0.025);
+        Trainer tr=new Trainer(md,3,false,0.025f);
 
 //        训练模型
         md=tr.train();

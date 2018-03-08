@@ -16,14 +16,20 @@ public class Trainer {
     private Model md;
     private int windos;
     private boolean weatherfill;
-    private double step=0.025;
-    private double Step=step;
+    private float step=0.025f;
+    private float Step=step;
     private int maxloop=10000;
     private HashMap<String,Integer> dictionary;
-    private List<Double> sigmoid_key=new ArrayList<Double>();
-    private List<Double> sigmoid_value=new ArrayList<Double>();
+    private List<Float> sigmoid_key=new ArrayList<Float>();
+    private List<Float> sigmoid_value=new ArrayList<Float>();
+     long t1=0;
+     long t2=0;
+     long t3=0;
+     long t4=0;
 
-    public Trainer(Model md,int windos,boolean weatherfill,double step){
+
+
+    public Trainer(Model md,int windos,boolean weatherfill,float step){
         this.weatherfill=weatherfill;
         this.windos=windos;
         this.md=md;
@@ -38,11 +44,15 @@ public class Trainer {
 
 
     public Model train(){
-        double k=0.1;
+        float k=0.1f;
         for(int i=0;i<maxloop;i++){
             trainline();
             if(i%20==0) {
-                step=Step*(1-(double)i/maxloop);
+                step=Step*(1-(float)i/maxloop);
+                System.out.println("获取非叶子节点向量的时间："+Long.toString(t1));
+                System.out.println("sigmoid函数的时间："+Long.toString(t2));
+                System.out.println("更新非叶子节点向量的时间："+Long.toString(t3));
+                System.out.println("更新单词向量的时间："+Long.toString(t4));
                 System.out.println(md.hm.getNodevector(new byte[]{1,0,1}));
                 System.out.println(md.getVector("mother"));
                 System.out.println(md.getVector("father"));
@@ -51,10 +61,10 @@ public class Trainer {
                 System.out.println(md.getVector("queen"));
                 System.out.println(md.dis("king","queen"));
                 System.out.println(md.dis("mother","queen"));
-                System.out.println("training has completed "+Double.toString((double)i/maxloop*100)+"%");
+                System.out.println("training has completed "+Float.toString((float)i/maxloop*100)+"%");
                 System.out.println("---------------------------------");
             }
-            if((double)i/maxloop>k){
+            if((float)i/maxloop>k){
                 k+=0.1;
                 md.Savemodel("E:\\myw2v\\first.model");
             }
@@ -76,7 +86,7 @@ public class Trainer {
         if (corpusline!=null) {
             for (List<String> e : corpusline.keySet()) {
                 int termcont=dictionary.get(e.get(windos));
-                double t=(double)termcont/hm.totalnum;
+                float t=(float)termcont/hm.totalnum;
                 if(t>0.0005){
                     if(Math.random()<1-Math.pow((0.0005/t),0.5)){
 //                        System.out.println("跳过单词:"+e.get(windos)+"\t"+"频数为:"+Integer.toString(termcont));
@@ -94,33 +104,55 @@ public class Trainer {
                     int path=0;
                     for (byte[] subpath : pathlist) {
                         int flag=Math.random()>0.9999?1:1;
+//                        获取目标非叶子节点向量的时间
+                        long t1_tmp=System.currentTimeMillis();
                         Vector pathvector = hm.getNodevector(subpath);
+                        t1+=System.currentTimeMillis()-t1_tmp;
+
+
                         if(flag==0) {
                         System.out.println("参数向量为："+pathvector);
                         }
-                        double q = active(Vector.mult(pathvector, inputvector));
+
+
+//                        sigmoid函数的时间
+                        long t2_tmp=System.currentTimeMillis();
+                        float q = sigmoid(Vector.mult(pathvector, inputvector));
+                        t2+=System.currentTimeMillis()-t2_tmp;
+
+
                         if(flag==0) {
-                        System.out.println("激活函数参数："+Double.toString(Vector.mult(pathvector, inputvector)));
-                        System.out.println("激活函数："+Double.toString(q));
+                        System.out.println("激活函数参数："+Float.toString(Vector.mult(pathvector, inputvector)));
+                        System.out.println("激活函数："+Float.toString(q));
                         }
-                        double g = step * (1 - Huffmanofterm[path] - q);
+                        float g = step * (1 - Huffmanofterm[path] - q);
                         path++;
                         if(flag==0) {
-                        System.out.println("g等于："+Double.toString(g)+"\t学习率为："+Double.toString(step));
+                        System.out.println("g等于："+Float.toString(g)+"\t学习率为："+Float.toString(step));
                         }
+
+
                         addofinput = Vector.adds(addofinput, Vector.mult(g, pathvector));
                         if(flag==0) {
                         System.out.println("term增量为："+addofinput);
 //                        hm.setVectorofnotleafbyHuffman(subpath, Vector.adds(Vector.mult(g, inputvector), pathvector));
                         }
                         Vector tmp=Vector.mult(g, inputvector);
+
+                        //更新非叶子节点向量
+                        long t3_tmp=System.currentTimeMillis();
                         for(int i=0;i<pathvector.getSize();i++) {
                             pathvector.vector[i]=pathvector.vector[i]+tmp.vector[i];
                         }
+                        t3+=System.currentTimeMillis()-t3_tmp;
+
                       if(flag==0) {
                             System.out.print("参数向量增量为：" + Vector.mult(g, inputvector)+"\n"+"\n");
                        }
                     }
+
+//                    更新单词向量
+                    long t4_tmp=System.currentTimeMillis();
                     for (int i = 0; i < e.size(); i++) {
                         if (i != windos) {
                             try {
@@ -138,6 +170,7 @@ public class Trainer {
                             }
                         }
                     }
+                    t4+=System.currentTimeMillis()-t4_tmp;
                 }
             }
         }
@@ -146,7 +179,7 @@ public class Trainer {
         }
     }
 
-    private double active(double x){
+    private float active(float x){
         if(x<-6){
             return 0;
         }
@@ -158,15 +191,15 @@ public class Trainer {
                 return sigmoid_value.get(i);
             }
         }
-        return 0.5;
+        return 0.5f;
     }
 
-    private double sigmoid(double x){
-        return 1/(1+Math.pow(Math.E,-x));
+    private float sigmoid(float x){
+        return (float) (1/(1+Math.pow(Math.E,-x)));
     }
 
     private void intsigmoid(){
-        for(double i=-6;i<6;i+=0.05){
+        for(float i=-6;i<6;i+=0.05){
             sigmoid_key.add(i);
             sigmoid_value.add(sigmoid(i));
         }
