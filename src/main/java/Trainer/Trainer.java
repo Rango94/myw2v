@@ -11,15 +11,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Trainer {
-    static Huffman hm;
-    corpusReader cr;
-    Model md;
-    int windos;
-    boolean weatherfill;
-    double step=0.025;
-    double Step=step;
-    int maxloop=10000;
-    HashMap<String,Integer> dictionary;
+    private static Huffman hm;
+    private corpusReader cr;
+    private Model md;
+    private int windos;
+    private boolean weatherfill;
+    private double step=0.025;
+    private double Step=step;
+    private int maxloop=10000;
+    private HashMap<String,Integer> dictionary;
+    private List<Double> sigmoid_key=new ArrayList<Double>();
+    private List<Double> sigmoid_value=new ArrayList<Double>();
 
     public Trainer(Model md,int windos,boolean weatherfill,double step){
         this.weatherfill=weatherfill;
@@ -30,7 +32,10 @@ public class Trainer {
         this.hm=md.hm;
         this.dictionary=hm.dictionary;
         cr=new corpusReader(md.PATH,windos,weatherfill,md.hm.lowwords);
+        intsigmoid();
     }
+
+
 
     public Model train(){
         double k=0.1;
@@ -142,8 +147,32 @@ public class Trainer {
     }
 
     private double active(double x){
+        if(x<-6){
+            return 0;
+        }
+        if(x>6){
+            return 1;
+        }
+        for(int i=0;i<sigmoid_key.size();i++){
+            if(Math.abs(x-sigmoid_key.get(i))<=0.025){
+                return sigmoid_value.get(i);
+            }
+        }
+        return 0.5;
+    }
+
+    private double sigmoid(double x){
         return 1/(1+Math.pow(Math.E,-x));
     }
+
+    private void intsigmoid(){
+        for(double i=-6;i<6;i+=0.05){
+            sigmoid_key.add(i);
+            sigmoid_value.add(sigmoid(i));
+        }
+    }
+
+
 //    生成路径序列以便训练
     private List<byte[]> generatepath(byte[] path){
         List<byte[]> pathlist=new ArrayList<byte[]>();
