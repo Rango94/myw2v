@@ -15,7 +15,7 @@ public class corpusReader {
     boolean weatherfill;
     String Path;
     public List<String>  stopwords=new ArrayList<String>();
-    int sperate=200;
+    int sperate=2000;
     String[] stopwords_str={"an","'d","'ll","'m","'re","'s","'t","'ve","ZT","ZZ","a","a's","able","about","above","abst","accordance","according","accordingly","across",
             "act","actually","added","adj","adopted","affected","affecting","affects","after","afterwards",
             "again","against","ah","ain't","all","allow","allows","almost","alone","along","already","also",
@@ -103,7 +103,7 @@ public class corpusReader {
     }
 
 
-    public HashMap<List<String>,Vector> handlesent(Model mod,int windos){
+    public HashMap<List<String>,Vector> handlesent_cbow(Model mod,int windos){
         HashMap<List<String>,Vector> subcorpus=new HashMap<List<String>,Vector>();
         try {
             int tempchar;
@@ -161,6 +161,54 @@ public class corpusReader {
     }
 
 
+    public HashMap<List<String>,Vector> handlesent_sg(Model mod,int windos){
+        HashMap<List<String>,Vector> subcorpus=new HashMap<List<String>,Vector>();
+        try {
+            int tempchar;
+            String term="";
+            int num=0;
+            String[] line=new String[sperate];
+            tempchar=br.read();
+            while(tempchar!=-1){
+                char w=(char)tempchar;
+                if(tempchar==10||tempchar==13||Character.isSpaceChar(w)){
+                    if(term!="" && !stopwords.contains(term)){
+                        line[num]=term;
+                        num+=1;
+                    }
+                    term="";
+                }
+                else{
+                    term+=String.valueOf(w);
+                }
+                if(num==sperate){
+                    break;
+                }
+                tempchar=br.read();
+            }
+            if(tempchar==-1){
+                br = new InputStreamReader (new FileInputStream( new File(Path)));
+            }
+            if(num<sperate-1){
+                for(int i=num;i<sperate;i++){
+                    line[i]=line[num-1];
+                }
+            }
+            for (int i = windos; i < line.length - windos; i++) {
+                Vector input = new Vector(mod.getSize(),0);
+                if (mod.getVector(line[i])!=null) {
+                    input = mod.getVector(line[i]);
+                }
+                else{
+                    System.out.println("发现单词"+line[i]+"没有对应向量");
+                }
+                subcorpus.put(substring(line, i - windos, i + windos+1), input);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return subcorpus;
+    }
 
 
 

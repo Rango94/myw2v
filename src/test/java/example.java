@@ -18,7 +18,7 @@ public class example {
         Trainer tr=new Trainer(md,3,false,0.025);
 
 //        训练模型
-        md=tr.train();
+        md=tr.train("sg","Huffman");
 
 //        保存模型
 //        System.out.println(Vector.dis(new Vector(new double[]{1,1}).normalization(),new Vector(new double[]{2,2}).normalization()));
