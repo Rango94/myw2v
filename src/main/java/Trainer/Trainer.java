@@ -14,7 +14,7 @@ public class Trainer {
     private static Huffman hm;
     private corpusReader cr;
     private Model md;
-    private int windos;
+    private int Window;
     private boolean weatherfill;
     private double step=0.025;
     private double Step=step;
@@ -23,9 +23,17 @@ public class Trainer {
     private List<Double> sigmoid_key=new ArrayList<Double>();
     private List<Double> sigmoid_value=new ArrayList<Double>();
 
+
+    long t1=0;
+     long t2=0;
+     long t3=0;
+     long t4=0;
+
+
+
     public Trainer(Model md,int windos,boolean weatherfill,double step){
         this.weatherfill=weatherfill;
-        this.windos=windos;
+        this.Window=windos;
         this.md=md;
         this.step=step;
         this.Step=step;
@@ -43,6 +51,10 @@ public class Trainer {
             trainline();
             if(i%20==0) {
                 step=Step*(1-(double)i/maxloop);
+                System.out.println("获取非叶子节点向量的时间："+Long.toString(t1));
+                System.out.println("sigmoid函数的时间："+Long.toString(t2));
+                System.out.println("更新非叶子节点向量的时间："+Long.toString(t3));
+                System.out.println("更新单词向量的时间："+Long.toString(t4));
                 System.out.println(md.hm.getNodevector(new byte[]{1,0,1}));
                 System.out.println(md.getVector("mother"));
                 System.out.println(md.getVector("father"));
@@ -56,7 +68,7 @@ public class Trainer {
             }
             if((double)i/maxloop>k){
                 k+=0.1;
-                md.Savemodel("E:\\myw2v\\first.model");
+                md.Savemodel("E:\\myw2v\\first_tmp.model");
             }
             if(i%5==0){
 //                System.out.println(hm.getVectorofnotleafbyHuffman("-1"));
@@ -72,10 +84,11 @@ public class Trainer {
     }
 //  根据一行语料训练
     public void trainline(){
-        HashMap<List<String>, Vector> corpusline = cr.handlesent(md);
+        int window=1+(int)(Math.random()*(Window-1));
+        HashMap<List<String>, Vector> corpusline = cr.handlesent(md,window);
         if (corpusline!=null) {
             for (List<String> e : corpusline.keySet()) {
-                int termcont=dictionary.get(e.get(windos));
+                int termcont=dictionary.get(e.get(window));
                 double t=(double)termcont/hm.totalnum;
                 if(t>0.0005){
                     if(Math.random()<1-Math.pow((0.0005/t),0.5)){
@@ -84,9 +97,9 @@ public class Trainer {
                     }
                 }
                 Vector inputvector = corpusline.get(e);
-                byte[] Huffmanofterm = hm.getHuffmancode(e.get(windos));
+                byte[] Huffmanofterm = hm.getHuffmancode(e.get(window));
                 if(Huffmanofterm==null){
-                    System.out.println(e.get(windos));
+                    System.out.println(e.get(window));
                 }
                 if(Huffmanofterm!=null) {
                     List<byte[]> pathlist = generatepath(Huffmanofterm);
@@ -94,11 +107,23 @@ public class Trainer {
                     int path=0;
                     for (byte[] subpath : pathlist) {
                         int flag=Math.random()>0.9999?1:1;
+//                        获取目标非叶子节点向量的时间
+                        long t1_tmp=System.currentTimeMillis();
                         Vector pathvector = hm.getNodevector(subpath);
+                        t1+=System.currentTimeMillis()-t1_tmp;
+
+
                         if(flag==0) {
                         System.out.println("参数向量为："+pathvector);
                         }
+
+
+//                        sigmoid函数的时间
+                        long t2_tmp=System.currentTimeMillis();
                         double q = active(Vector.mult(pathvector, inputvector));
+                        t2+=System.currentTimeMillis()-t2_tmp;
+
+
                         if(flag==0) {
                         System.out.println("激活函数参数："+Double.toString(Vector.mult(pathvector, inputvector)));
                         System.out.println("激活函数："+Double.toString(q));
@@ -108,21 +133,31 @@ public class Trainer {
                         if(flag==0) {
                         System.out.println("g等于："+Double.toString(g)+"\t学习率为："+Double.toString(step));
                         }
+
+
                         addofinput = Vector.adds(addofinput, Vector.mult(g, pathvector));
                         if(flag==0) {
                         System.out.println("term增量为："+addofinput);
 //                        hm.setVectorofnotleafbyHuffman(subpath, Vector.adds(Vector.mult(g, inputvector), pathvector));
                         }
                         Vector tmp=Vector.mult(g, inputvector);
+
+                        //更新非叶子节点向量
+                        long t3_tmp=System.currentTimeMillis();
                         for(int i=0;i<pathvector.getSize();i++) {
                             pathvector.vector[i]=pathvector.vector[i]+tmp.vector[i];
                         }
+                        t3+=System.currentTimeMillis()-t3_tmp;
+
                       if(flag==0) {
                             System.out.print("参数向量增量为：" + Vector.mult(g, inputvector)+"\n"+"\n");
                        }
                     }
+
+//                    更新单词向量
+                    long t4_tmp=System.currentTimeMillis();
                     for (int i = 0; i < e.size(); i++) {
-                        if (i != windos) {
+                        if (i != window) {
                             try {
                                 Vector tmp = md.getVector(e.get(i));
                                 if (tmp != null) {
@@ -138,6 +173,7 @@ public class Trainer {
                             }
                         }
                     }
+                    t4+=System.currentTimeMillis()-t4_tmp;
                 }
             }
         }

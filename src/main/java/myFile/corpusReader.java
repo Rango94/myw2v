@@ -11,7 +11,7 @@ import java.util.List;
 public class corpusReader {
 
     public Reader br;
-    int windos;
+    int Windos;
     boolean weatherfill;
     String Path;
     public List<String>  stopwords=new ArrayList<String>();
@@ -87,7 +87,7 @@ public class corpusReader {
         }
         this.Path=path;
         this.weatherfill=weatherfill;
-        this.windos=windos;
+        this.Windos=windos;
         for(String e:stopwords_str){
             stopwords.add(e);
         }
@@ -103,7 +103,7 @@ public class corpusReader {
     }
 
 
-    public HashMap<List<String>,Vector> handlesent(Model mod){
+    public HashMap<List<String>,Vector> handlesent(Model mod,int windos){
         HashMap<List<String>,Vector> subcorpus=new HashMap<List<String>,Vector>();
         try {
             int tempchar;
