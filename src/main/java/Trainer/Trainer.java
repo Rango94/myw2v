@@ -20,8 +20,9 @@ public class Trainer {
     private double Step=step;
     private int maxloop=10000;
     private HashMap<String,Integer> dictionary;
-    private List<Double> sigmoid_key=new ArrayList<Double>();
-    private List<Double> sigmoid_value=new ArrayList<Double>();
+//    private List<Double> sigmoid_key=new ArrayList<Double>();
+//    private List<Double> sigmoid_value=new ArrayList<Double>();
+    private HashMap<Integer,Double> Sigmoid=new HashMap<Integer, Double>();
 
 
     long t1=0;
@@ -189,12 +190,9 @@ public class Trainer {
         if(x>6){
             return 1;
         }
-        for(int i=0;i<sigmoid_key.size();i++){
-            if(Math.abs(x-sigmoid_key.get(i))<=0.025){
-                return sigmoid_value.get(i);
-            }
+        else{
+            return Sigmoid.get((int)Math.round(x*100));
         }
-        return 0.5;
     }
 
     private double sigmoid(double x){
@@ -202,9 +200,8 @@ public class Trainer {
     }
 
     private void intsigmoid(){
-        for(double i=-6;i<6;i+=0.05){
-            sigmoid_key.add(i);
-            sigmoid_value.add(sigmoid(i));
+        for(double i=-6;i<6;i+=0.01){
+            Sigmoid.put((int)Math.round(i*100),sigmoid(i));
         }
     }
 
