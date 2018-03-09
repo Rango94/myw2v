@@ -18,7 +18,7 @@ public class example {
         Trainer tr=new Trainer(md,4,false,0.025);
 
 //        训练模型
-        md=tr.train("cbow","Huffman");
+        md=tr.train("sg","Huffman",true);
 
 //        保存模型
 //        System.out.println(Vector.dis(new Vector(new double[]{1,1}).normalization(),new Vector(new double[]{2,2}).normalization()));
@@ -28,7 +28,7 @@ public class example {
 
 //        读取模型
         Model md1=new Model();
-        md1.Loadmodel("E:\\myw2v\\first_tmp.model");
+        md1.Loadmodel("E:\\myw2v\\first.model");
 //        寻找训练语料中最相近的两个单词
 //        double cha=-1;
 //        for(int i=0;i<md1.getTermnum();i++){

@@ -48,11 +48,14 @@ public class Trainer {
 
 
 
-    public Model train(String sgorcbow,String hmorneg){
+    public Model train(String sgorcbow,String hmorneg,boolean static_window){
         double k=0.1;
         if(hmorneg=="Huffman") {
+            String name=sgorcbow+"_"+hmorneg+"_"+Boolean.toString(static_window);
+            System.out.println(name);
             for (int i = 0; i < maxloop; i++) {
-                trainline_hm(sgorcbow);
+                trainline_hm(sgorcbow,static_window);
+                System.out.println(name);
                 if (i % 2 == 0) {
                     step = Step * (1 - (double) i / maxloop);
                     System.out.println("获取非叶子节点向量的时间：" + Long.toString(t1));
@@ -72,16 +75,18 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("E:\\myw2v\\first_tmp.model");
+                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
                 }
             }
             return md;
         }
         if(hmorneg=="Neg"){
             for (int i = 0; i < maxloop; i++) {
-                trainline_neg(sgorcbow);
+
+                trainline_neg();
                 if (i % 2 == 0) {
                     step = Step * (1 - (double) i / maxloop);
+
                     System.out.println("获取非叶子节点向量的时间：" + Long.toString(t1));
                     System.out.println("sigmoid函数的时间：" + Long.toString(t2));
                     System.out.println("更新非叶子节点向量的时间：" + Long.toString(t3));
@@ -108,8 +113,15 @@ public class Trainer {
         return md;
     }
 //  根据一行语料训练
-    public void trainline_hm(String sgorcbow){
-        int window=1+(int)(Math.random()*(Window));
+    public void trainline_hm(String sgorcbow,boolean static_window){
+        int window=3;
+        if(static_window){
+            window=Window;
+        }else {
+            window = 1 + (int) (Math.random() * (Window));
+        }
+//        System.out.println(window);
+//        int window=Window;
         if(sgorcbow.equals("cbow")) {
             HashMap<List<String>, Vector> corpusline = cr.handlesent_cbow(md, window);
             if (corpusline != null) {
@@ -142,6 +154,7 @@ public class Trainer {
                             if (flag == 0) {
                                 System.out.println("参数向量为：" + pathvector);
                             }
+
 
 //                        sigmoid函数的时间
                             long t2_tmp = System.currentTimeMillis();
@@ -205,6 +218,7 @@ public class Trainer {
                 System.out.println("语料库为空");
             }
         }else{
+
             HashMap<List<String>, Vector> corpusline = cr.handlesent_sg(md, window);
             if (corpusline != null) {
                 for (List<String> e : corpusline.keySet()) {
@@ -242,7 +256,7 @@ public class Trainer {
 
 //                        sigmoid函数的时间
                                 long t2_tmp = System.currentTimeMillis();
-                                double q = active(Vector.mult(pathvector, inputvector));
+                                double q = sigmoid(Vector.mult(pathvector, inputvector));
                                 t2 += System.currentTimeMillis() - t2_tmp;
 
 
@@ -300,8 +314,7 @@ public class Trainer {
         }
     }
 
-    public void trainline_neg(String sgorcbow){
-
+    public void trainline_neg(){
 
     }
 
