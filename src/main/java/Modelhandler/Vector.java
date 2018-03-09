@@ -19,7 +19,7 @@ public class Vector {
     public Vector(int size){
         float[] vec=new float[size];
         for(int i=0;i<size;i++){
-            vec[i]=(Math.random()-0.5)/size;
+            vec[i]=(float)(Math.random()-0.5)/size;
         }
         vector=vec;
         Size=size;
@@ -99,7 +99,7 @@ public class Vector {
         for(int i=0;i<getSize();i++){
             len+=vector[i]*vector[i];
         }
-        len=Math.pow(len,0.5);
+        len=(float)Math.pow(len,0.5);
         for(int i=0;i<getSize();i++){
             out.vector[i]=this.vector[i]/len;
         }
@@ -115,8 +115,8 @@ public class Vector {
             downa+=a.vector[i]*a.vector[i];
             downb+=b.vector[i]*b.vector[i];
         }
-        downa=Math.pow(downa,0.5);
-        downb=Math.pow(downb,0.5);
+        downa=(float) Math.pow(downa,0.5);
+        downb=(float)Math.pow(downb,0.5);
         return up/(downa*downb);
     }
 }

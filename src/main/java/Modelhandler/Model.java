@@ -124,9 +124,9 @@ public class Model {
 //  按行生成模型
     private Vector toVector(String sent){
         String[] vecstr=sent.split("\t");
-        double[] vecdou=new double[vecstr.length];
+        float[] vecdou=new float[vecstr.length];
         for(int i=0;i<vecdou.length;i++){
-            vecdou[i]=Double.parseDouble(vecstr[i]);
+            vecdou[i]=Float.parseFloat(vecstr[i]);
         }
         return new Vector(vecdou);
     }

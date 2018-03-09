@@ -5,7 +5,10 @@ import Modelhandler.Model;
 import Modelhandler.*;
 import myFile.corpusReader;
 
+import java.awt.*;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +17,17 @@ public class Trainer {
     private static Huffman hm;
     private corpusReader cr;
     private Model md;
-    private int windos;
+    private int Window;
     private boolean weatherfill;
     private float step=0.025f;
     private float Step=step;
     private int maxloop=10000;
     private HashMap<String,Integer> dictionary;
-    private List<Float> sigmoid_key=new ArrayList<Float>();
-    private List<Float> sigmoid_value=new ArrayList<Float>();
-     long t1=0;
+    private static HashMap<Float,Float> Sigmoid=new HashMap<Float,Float>();
+
+
+
+    long t1=0;
      long t2=0;
      long t3=0;
      long t4=0;
@@ -31,7 +36,7 @@ public class Trainer {
 
     public Trainer(Model md,int windos,boolean weatherfill,float step){
         this.weatherfill=weatherfill;
-        this.windos=windos;
+        this.Window=windos;
         this.md=md;
         this.step=step;
         this.Step=step;
@@ -66,7 +71,7 @@ public class Trainer {
             }
             if((float)i/maxloop>k){
                 k+=0.1;
-                md.Savemodel("E:\\myw2v\\first.model");
+                md.Savemodel("E:\\myw2v\\first_tmp.model");
             }
             if(i%5==0){
 //                System.out.println(hm.getVectorofnotleafbyHuffman("-1"));
@@ -82,10 +87,11 @@ public class Trainer {
     }
 //  根据一行语料训练
     public void trainline(){
-        HashMap<List<String>, Vector> corpusline = cr.handlesent(md);
+        int window=1+(int)(Math.random()*(Window-1));
+        HashMap<List<String>, Vector> corpusline = cr.handlesent(md,window);
         if (corpusline!=null) {
             for (List<String> e : corpusline.keySet()) {
-                int termcont=dictionary.get(e.get(windos));
+                int termcont=dictionary.get(e.get(window));
                 float t=(float)termcont/hm.totalnum;
                 if(t>0.0005){
                     if(Math.random()<1-Math.pow((0.0005/t),0.5)){
@@ -94,9 +100,9 @@ public class Trainer {
                     }
                 }
                 Vector inputvector = corpusline.get(e);
-                byte[] Huffmanofterm = hm.getHuffmancode(e.get(windos));
+                byte[] Huffmanofterm = hm.getHuffmancode(e.get(window));
                 if(Huffmanofterm==null){
-                    System.out.println(e.get(windos));
+                    System.out.println(e.get(window));
                 }
                 if(Huffmanofterm!=null) {
                     List<byte[]> pathlist = generatepath(Huffmanofterm);
@@ -117,7 +123,7 @@ public class Trainer {
 
 //                        sigmoid函数的时间
                         long t2_tmp=System.currentTimeMillis();
-                        float q = sigmoid(Vector.mult(pathvector, inputvector));
+                        float q = active(Vector.mult(pathvector, inputvector));
                         t2+=System.currentTimeMillis()-t2_tmp;
 
 
@@ -154,7 +160,7 @@ public class Trainer {
 //                    更新单词向量
                     long t4_tmp=System.currentTimeMillis();
                     for (int i = 0; i < e.size(); i++) {
-                        if (i != windos) {
+                        if (i != window) {
                             try {
                                 Vector tmp = md.getVector(e.get(i));
                                 if (tmp != null) {
@@ -180,18 +186,20 @@ public class Trainer {
     }
 
     private float active(float x){
+        int x_=(int)x*100;
+        int x__=x_%10;
+        if(x__>=5){
+            Sigmoid.get((float)(x_/10+1)/10);
+        }
+        if(x__<5){
+            Sigmoid.get((x_/10+0.5f)/10);
+        }
         if(x<-6){
             return 0;
         }
-        if(x>6){
+        else{
             return 1;
         }
-        for(int i=0;i<sigmoid_key.size();i++){
-            if(Math.abs(x-sigmoid_key.get(i))<=0.025){
-                return sigmoid_value.get(i);
-            }
-        }
-        return 0.5f;
     }
 
     private float sigmoid(float x){
@@ -199,9 +207,8 @@ public class Trainer {
     }
 
     private void intsigmoid(){
-        for(float i=-6;i<6;i+=0.05){
-            sigmoid_key.add(i);
-            sigmoid_value.add(sigmoid(i));
+        for(double i=-6;i<6;i+=0.05){
+            Sigmoid.put((float) i,sigmoid((float)i));
         }
     }
 
