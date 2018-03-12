@@ -20,7 +20,7 @@ public class Huffman {
 //    非叶子节点的名字和其huffman编码
     public HashMap<String, byte[]> treenotleaf=new HashMap<String, byte[]>();
 
-    public static HashMap<String,Integer> dictionary=new HashMap<String, Integer>();
+    public HashMap<String,Integer> dictionary=new HashMap<String, Integer>();
 
     public int totalnum=0;
 

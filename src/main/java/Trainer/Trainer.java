@@ -4,7 +4,7 @@ import Huffman.Huffman;
 import Modelhandler.Model;
 import Modelhandler.*;
 import myFile.corpusReader;
-
+import Negative_Sampling.nagetive_sampling;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import java.util.List;
 
 public class Trainer {
     private static Huffman hm;
+    private nagetive_sampling ns;
     private corpusReader cr;
     private Model md;
     private int Window;
@@ -21,7 +22,7 @@ public class Trainer {
     private int maxloop=1000;
     private HashMap<String,Integer> dictionary;
     String sgorcbow=null;
-    String hmorneg=null;
+    int hmorneg=0;
 //    private List<Double> sigmoid_key=new ArrayList<Double>();
 //    private List<Double> sigmoid_value=new ArrayList<Double>();
     private HashMap<Integer,Double> Sigmoid=new HashMap<Integer, Double>();
@@ -40,18 +41,26 @@ public class Trainer {
         this.md=md;
         this.step=step;
         this.Step=step;
-        this.hm=md.hm;
-        this.dictionary=hm.dictionary;
-        cr=new corpusReader(md.PATH,windos,weatherfill,md.hm.lowwords);
+        this.hmorneg=md.modelcategory;
+        if(hmorneg==0) {
+            this.hm = md.hm;
+            this.dictionary = hm.dictionary;
+            cr=new corpusReader(md.PATH,windos,weatherfill,md.hm.lowwords);
+        }else{
+            this.ns=md.ns;
+            this.dictionary=ns.dictionary;
+            cr=new corpusReader(md.PATH,windos,weatherfill,md.ns.lowwords);
+        }
+
         intsigmoid();
     }
 
 
 
-    public Model train(String sgorcbow,String hmorneg,boolean static_window){
+    public Model train(String sgorcbow,boolean static_window){
         double k=0.1;
-        if(hmorneg=="Huffman") {
-            String name=sgorcbow+"_"+hmorneg+"_"+Boolean.toString(static_window);
+        if(hmorneg==0) {
+            String name=sgorcbow+"_"+Integer.toString(hmorneg)+"_"+Boolean.toString(static_window);
             System.out.println(name);
             for (int i = 0; i < maxloop; i++) {
                 trainline_hm(sgorcbow,static_window);
@@ -80,13 +89,14 @@ public class Trainer {
             }
             return md;
         }
-        if(hmorneg=="Neg"){
+        if(hmorneg==1){
+            String name=sgorcbow+"_"+Integer.toString(hmorneg)+"_"+Boolean.toString(static_window);
+            System.out.println(name);
             for (int i = 0; i < maxloop; i++) {
-
-                trainline_neg();
+                System.out.println(name);
+                trainline_neg(sgorcbow,static_window);
                 if (i % 2 == 0) {
                     step = Step * (1 - (double) i / maxloop);
-
                     System.out.println("获取非叶子节点向量的时间：" + Long.toString(t1));
                     System.out.println("sigmoid函数的时间：" + Long.toString(t2));
                     System.out.println("更新非叶子节点向量的时间：" + Long.toString(t3));
@@ -104,7 +114,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("E:\\myw2v\\first_tmp.model");
+                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
                 }
 
             }
@@ -130,7 +140,6 @@ public class Trainer {
                     double t = (double) termcont / hm.totalnum;
                     if (t > 0.0005) {
                         if (Math.random() < 1 - Math.pow((0.0005 / t), 0.5)) {
-//                        System.out.println("跳过单词:"+e.get(windos)+"\t"+"频数为:"+Integer.toString(termcont));
                             continue;
                         }
                     }
@@ -314,7 +323,100 @@ public class Trainer {
         }
     }
 
-    public void trainline_neg(){
+    public void trainline_neg(String sgorcbow,boolean static_window){
+        int window=3;
+        if(static_window){
+            window=Window;
+        }else {
+            window = 1 + (int) (Math.random() * (Window));
+        }
+        if(sgorcbow.equals("cbow")){
+            HashMap<List<String>, Vector> corpusline = cr.handlesent_cbow(md, window);
+            if (corpusline != null) {
+                for (List<String> e : corpusline.keySet()) {
+                    int termcont = dictionary.get(e.get(window));
+                    double t = (double) termcont / ns.totalnum;
+                    if (t > 0.0005) {
+                        if (Math.random() < 1 - Math.pow((0.0005 / t), 0.5)) {
+                            continue;
+                        }
+                    }
+                    Vector inputvector = corpusline.get(e);
+                    Vector addinput=new Vector(inputvector.getSize(),0);
+                    for(String negterm:ns.getsampling(e.get(window),10)){
+                        Vector assistant_tmp=ns.getVector(negterm);
+                        double q=active(Vector.mult(inputvector,assistant_tmp));
+                        double g=step*(-q);
+                        addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
+                        Vector tmp=Vector.mult(g,inputvector);
+                        for(int i=0;i<tmp.getSize();i++){
+                            assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
+                        }
+                    }
+                    Vector assistant_tmp=ns.getVector(e.get(window));
+                    double q=active(Vector.mult(inputvector,assistant_tmp));
+                    double g=step*(1-q);
+                    addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
+                    Vector tmp=Vector.mult(g,inputvector);
+                    for(int i=0;i<tmp.getSize();i++){
+                        assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
+                    }
+                    for(int i=0;i<e.size();i++){
+                        if(i==window){
+                            continue;
+                        }
+                        Vector tmp_term=md.getVector(e.get(i));
+                        for(int k=0;k<addinput.getSize();k++){
+                            tmp_term.vector[k]=tmp_term.vector[k]+addinput.vector[k];
+                        }
+                    }
+                }
+            }
+        }else{
+            HashMap<List<String>, Vector> corpusline = cr.handlesent_sg(md, window);
+            if (corpusline != null) {
+                for (List<String> e : corpusline.keySet()) {
+                    int termcont = dictionary.get(e.get(window));
+                    double t = (double) termcont / hm.totalnum;
+                    if (t > 0.0005) {
+                        if (Math.random() < 1 - Math.pow((0.0005 / t), 0.5)) {
+                            continue;
+                        }
+                    }
+                    Vector inputvector = corpusline.get(e);
+                    Vector addinput=new Vector(inputvector.getSize(),0);
+                    for(String negterm:ns.getsampling(e.get(window),10)){
+                        Vector assistant_tmp=ns.getVector(negterm);
+                        double q=active(Vector.mult(inputvector,assistant_tmp));
+                        double g=step*(-q);
+                        addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
+                        Vector tmp=Vector.mult(g,inputvector);
+                        for(int i=0;i<tmp.getSize();i++){
+                            assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
+                        }
+                    }
+                    Vector assistant_tmp=ns.getVector(e.get(window));
+                    double q=active(Vector.mult(inputvector,assistant_tmp));
+                    double g=step*(1-q);
+                    addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
+                    Vector tmp=Vector.mult(g,inputvector);
+                    for(int i=0;i<tmp.getSize();i++){
+                        assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
+                    }
+                    for(int i=0;i<e.size();i++){
+                        if(i==window){
+                            continue;
+                        }
+                        Vector tmp_term=md.getVector(e.get(i));
+                        for(int k=0;k<addinput.getSize();k++){
+                            tmp_term.vector[k]=tmp_term.vector[k]+addinput.vector[k];
+                        }
+                    }
+                }
+            }
+
+        }
+
 
     }
 

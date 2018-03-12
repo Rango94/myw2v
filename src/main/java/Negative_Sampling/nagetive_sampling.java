@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import Modelhandler.Vector;
+import java.util.Set;
 
 public class nagetive_sampling {
     String[] stopwords_str={"an","'d","'ll","'m","'re","'s","'t","'ve","ZT","ZZ","a","a's","able","about","above","abst","accordance","according","accordingly","across",
@@ -70,14 +71,15 @@ public class nagetive_sampling {
             "within","without","won't","wonder","words","work","worked","working","works","world","would","wouldn't",
             "www","x","y","year","years","yes","yet","you","you'd","you'll","you're","you've","youd","young","younger",
             "youngest","your","youre","yours","yourself","yourselves","z","zero","zt","zz"};
-    private static HashMap<String,Integer> dictionary=new HashMap<String, Integer>();
+    public HashMap<String,Integer> dictionary=new HashMap<String, Integer>();
     private List<String> stopwords=new ArrayList<String>();
-    private int totalnum=0;
-    private List<String> lowwords=new ArrayList<String>();
+    public int totalnum=0;
+    public List<String> lowwords=new ArrayList<String>();
     private List<Double> line_location=new ArrayList<Double>();
     private List<String> line_name=new ArrayList<String>();
     private HashMap<String,Vector> termvector_ass =new HashMap<String, Vector>();
     private int vectorsize;
+    private List<String> Termlist=new ArrayList<String>();
 
 
 
@@ -90,16 +92,20 @@ public class nagetive_sampling {
         genareteline(dictionary);
     }
 
+    public Set<String> getTermlist(){
+        return dictionary.keySet();
+    }
     public List<String> getsampling(String term,int size){
         List<String> out=new ArrayList<String>();
         for(int i=0;i<size;i++){
-            String e=getsinglesampling(term);
+            String e=getsinglesampling();
             if(e.equals(term)){
                 i--;
             }else {
-                out.add(getsinglesampling(term));
+                out.add(e);
             }
         }
+        System.out.println();
         return out;
     }
 
@@ -107,18 +113,21 @@ public class nagetive_sampling {
         return termvector_ass.get(name);
     }
 
-    private String getsinglesampling(String term){
+    private String getsinglesampling(){
         double idx=Math.random();
+//        System.out.print(Double.toString(idx)+'\t');
         int idx_int=(int)(line_location.size()*idx);
         if (line_location.get(idx_int)>idx){
             while(line_location.get(idx_int)>idx) {
                 idx_int -= 1;
             }
+            System.out.print(Double.toString(line_location.get(idx_int))+'\t'+Double.toString(line_location.get(idx_int+1))+"\t"+line_name.get(idx_int+1)+"\n");
             return line_name.get(idx_int+1);
         }else{
             while(line_location.get(idx_int)<=idx) {
                 idx_int += 1;
             }
+            System.out.print(Double.toString(line_location.get(idx_int-1))+'\t'+Double.toString(line_location.get(idx_int))+"\t"+line_name.get(idx_int-1)+"\n");
             return line_name.get(idx_int-1);
         }
     }

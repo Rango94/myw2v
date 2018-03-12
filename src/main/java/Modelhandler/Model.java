@@ -1,5 +1,6 @@
 package Modelhandler;
 import Huffman.Huffman;
+import Negative_Sampling.nagetive_sampling;
 import myFile.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -11,10 +12,12 @@ import java.util.Set;
 public class Model {
     public HashMap<String,HashMap<String,Vector>> model=new HashMap<String, HashMap<String,Vector>>();
     public Huffman hm=null;
+    public nagetive_sampling ns=null;
     public String PATH;
     private static int Size=0;
     public int termnum=0;
     private List<String> termlist=new ArrayList<String>();
+    public int modelcategory=0;
 
     public static int getSize() {
         return Size;
@@ -24,13 +27,23 @@ public class Model {
         return termlist;
     }
 
-    public Model(String path, int size){
-        System.out.println("building Huffman...");
-        hm=new Huffman(path,size);
+    public Model(String path, int size,String hmorns){
+        if(hmorns.equals("hm")) {
+            modelcategory=0;
+            System.out.println("building Huffman...");
+            hm = new Huffman(path, size);
 //        hm.notleafstoString();
-        System.out.println("initial model...");
-        initModel(hm.Termset,size);
-        PATH=path;
+            System.out.println("initial model...");
+            initModel(hm.Termset, size);
+            PATH = path;
+        }else{
+            modelcategory=1;
+            System.out.println("building negative sampling...");
+            ns=new nagetive_sampling(path,size);
+            System.out.println("initial model...");
+            initModel(ns.getTermlist(), size);
+            PATH = path;
+        }
     }
     public Model(){
 
