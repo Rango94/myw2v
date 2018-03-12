@@ -97,11 +97,6 @@ public class Trainer {
                 trainline_neg(sgorcbow,static_window);
                 if (i % 2 == 0) {
                     step = Step * (1 - (double) i / maxloop);
-                    System.out.println("获取非叶子节点向量的时间：" + Long.toString(t1));
-                    System.out.println("sigmoid函数的时间：" + Long.toString(t2));
-                    System.out.println("更新非叶子节点向量的时间：" + Long.toString(t3));
-                    System.out.println("更新单词向量的时间：" + Long.toString(t4));
-                    System.out.println(md.hm.getNodevector(new byte[]{1, 0, 1}));
                     System.out.println(md.getVector("mother"));
                     System.out.println(md.getVector("father"));
                     System.out.println(md.dis("mother", "father"));
@@ -227,7 +222,6 @@ public class Trainer {
                 System.out.println("语料库为空");
             }
         }else{
-
             HashMap<List<String>, Vector> corpusline = cr.handlesent_sg(md, window);
             if (corpusline != null) {
                 for (List<String> e : corpusline.keySet()) {
@@ -235,7 +229,6 @@ public class Trainer {
                     double t = (double) termcont / hm.totalnum;
                     if (t > 0.0005) {
                         if (Math.random() < 1 - Math.pow((0.0005 / t), 0.5)) {
-//                        System.out.println("跳过单词:"+e.get(windos)+"\t"+"频数为:"+Integer.toString(termcont));
                             continue;
                         }
                     }

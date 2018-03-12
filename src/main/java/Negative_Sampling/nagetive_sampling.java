@@ -105,7 +105,6 @@ public class nagetive_sampling {
                 out.add(e);
             }
         }
-        System.out.println();
         return out;
     }
 
@@ -120,14 +119,17 @@ public class nagetive_sampling {
         if (line_location.get(idx_int)>idx){
             while(line_location.get(idx_int)>idx) {
                 idx_int -= 1;
+                if(idx_int==-1){
+                    return line_name.get(0);
+                }
             }
-            System.out.print(Double.toString(line_location.get(idx_int))+'\t'+Double.toString(line_location.get(idx_int+1))+"\t"+line_name.get(idx_int+1)+"\n");
+//            System.out.print(Double.toString(line_location.get(idx_int))+'\t'+Double.toString(line_location.get(idx_int+1))+"\t"+line_name.get(idx_int+1)+"\n");
             return line_name.get(idx_int+1);
         }else{
             while(line_location.get(idx_int)<=idx) {
                 idx_int += 1;
             }
-            System.out.print(Double.toString(line_location.get(idx_int-1))+'\t'+Double.toString(line_location.get(idx_int))+"\t"+line_name.get(idx_int-1)+"\n");
+//            System.out.print(Double.toString(line_location.get(idx_int-1))+'\t'+Double.toString(line_location.get(idx_int))+"\t"+line_name.get(idx_int-1)+"\n");
             return line_name.get(idx_int-1);
         }
     }
