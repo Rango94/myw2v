@@ -15,10 +15,10 @@ public class example {
         Model md=new Model("F:/w2vcorpus/text8.txt",size);
 //
 //        新建训练类并设定参数
-        Trainer tr=new Trainer(md,4,false,0.025);
+        Trainer tr=new Trainer(md,5,false,0.025);
 
 //        训练模型
-        md=tr.train("sg","Huffman",true);
+        md=tr.train("sg","Huffman",false);
 
 //        保存模型
 //        System.out.println(Vector.dis(new Vector(new double[]{1,1}).normalization(),new Vector(new double[]{2,2}).normalization()));
