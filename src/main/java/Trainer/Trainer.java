@@ -377,41 +377,40 @@ public class Trainer {
                         }
                     }
                     Vector inputvector = corpusline.get(e);
-                    Vector addinput=new Vector(inputvector.getSize(),0);
-                    for(String negterm:ns.getsampling(e.get(window),10)){
-                        Vector assistant_tmp=ns.getVector(negterm);
-                        double q=active(Vector.mult(inputvector,assistant_tmp));
-                        double g=step*(-q);
-                        addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
-                        Vector tmp=Vector.mult(g,inputvector);
-                        for(int i=0;i<tmp.getSize();i++){
-                            assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
-                        }
-                    }
-                    Vector assistant_tmp=ns.getVector(e.get(window));
-                    double q=active(Vector.mult(inputvector,assistant_tmp));
-                    double g=step*(1-q);
-                    addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
-                    Vector tmp=Vector.mult(g,inputvector);
-                    for(int i=0;i<tmp.getSize();i++){
-                        assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
-                    }
-                    for(int i=0;i<e.size();i++){
-                        if(i==window){
+                    for(int k=0;k<2*window;k++) {
+                        if (k == window) {
                             continue;
                         }
-                        Vector tmp_term=md.getVector(e.get(i));
-                        for(int k=0;k<addinput.getSize();k++){
-                            tmp_term.vector[k]=tmp_term.vector[k]+addinput.vector[k];
+                        Vector addinput = new Vector(inputvector.getSize(), 0);
+                        for (String negterm : ns.getsampling(e.get(k), 15)) {
+                            Vector assistant_tmp = ns.getVector(negterm);
+                            double q = active(Vector.mult(inputvector, assistant_tmp));
+                            double g = step * (-q);
+                            addinput = Vector.adds(addinput, Vector.mult(g, assistant_tmp));
+                            Vector tmp = Vector.mult(g, inputvector);
+                            for (int i = 0; i < tmp.getSize(); i++) {
+                                assistant_tmp.vector[i] = assistant_tmp.vector[i] + tmp.vector[i];
+                            }
+                        }
+                        Vector assistant_tmp = ns.getVector(e.get(window));
+                        double q = active(Vector.mult(inputvector, assistant_tmp));
+                        double g = step * (1 - q);
+                        addinput = Vector.adds(addinput, Vector.mult(g, assistant_tmp));
+                        Vector tmp = Vector.mult(g, inputvector);
+                        for (int i = 0; i < tmp.getSize(); i++) {
+                            assistant_tmp.vector[i] = assistant_tmp.vector[i] + tmp.vector[i];
+                        }
+                        Vector tmp_term = md.getVector(e.get(window));
+                        for (int p = 0; p < addinput.getSize(); p++) {
+                            tmp_term.vector[p] = tmp_term.vector[p] + addinput.vector[p];
                         }
                     }
                 }
             }
-
         }
-
-
     }
+
+
 
 
 
