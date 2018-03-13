@@ -84,7 +84,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
+                    md.Savemodel("G:\\myw2v\\first_tmp"+name+".model");
                 }
             }
             return md;
@@ -109,7 +109,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
+                    md.Savemodel("G:\\myw2v\\first_tmp"+name+".model");
                 }
 
             }
@@ -195,7 +195,6 @@ public class Trainer {
                                 System.out.print("参数向量增量为：" + Vector.mult(g, inputvector) + "\n" + "\n");
                             }
                         }
-
 //                    更新单词向量
                         long t4_tmp = System.currentTimeMillis();
                         for (int i = 0; i < e.size(); i++) {
@@ -370,7 +369,7 @@ public class Trainer {
             if (corpusline != null) {
                 for (List<String> e : corpusline.keySet()) {
                     int termcont = dictionary.get(e.get(window));
-                    double t = (double) termcont / hm.totalnum;
+                    double t = (double) termcont / ns.totalnum;
                     if (t > 0.0005) {
                         if (Math.random() < 1 - Math.pow((0.0005 / t), 0.5)) {
                             continue;
