@@ -164,7 +164,7 @@ public class nagetive_sampling {
                         if (dictionary.containsKey(term)) {
                             dictionary.put(term, dictionary.get(term) + 1);
                         } else {
-                            termvector_ass.put(term,new Vector(vectorsize));
+                            termvector_ass.put(term,new Vector(vectorsize,0));
                             dictionary.put(term, 1);
                         }
                     }

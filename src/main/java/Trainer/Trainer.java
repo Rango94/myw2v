@@ -97,6 +97,8 @@ public class Trainer {
                 trainline_neg(sgorcbow,static_window);
                 if (i % 2 == 0) {
                     step = Step * (1 - (double) i / maxloop);
+                    System.out.println(step);
+                    System.out.println(ns.getVector("mother"));
                     System.out.println(md.getVector("mother"));
                     System.out.println(md.getVector("father"));
                     System.out.println(md.dis("mother", "father"));
@@ -336,7 +338,7 @@ public class Trainer {
                     }
                     Vector inputvector = corpusline.get(e);
                     Vector addinput=new Vector(inputvector.getSize(),0);
-                    for(String negterm:ns.getsampling(e.get(window),10)){
+                    for(String negterm:ns.getsampling(e.get(window),15)){
                         Vector assistant_tmp=ns.getVector(negterm);
                         double q=active(Vector.mult(inputvector,assistant_tmp));
                         double g=step*(-q);
@@ -370,7 +372,7 @@ public class Trainer {
             if (corpusline != null) {
                 for (List<String> e : corpusline.keySet()) {
                     int termcont = dictionary.get(e.get(window));
-                    double t = (double) termcont / hm.totalnum;
+                    double t = (double) termcont / ns.totalnum;
                     if (t > 0.0005) {
                         if (Math.random() < 1 - Math.pow((0.0005 / t), 0.5)) {
                             continue;
@@ -394,7 +396,7 @@ public class Trainer {
                         }
                         Vector assistant_tmp = ns.getVector(e.get(window));
                         double q = active(Vector.mult(inputvector, assistant_tmp));
-                        double g = step * (1 - q);
+                        double g = step * (1-q);
                         addinput = Vector.adds(addinput, Vector.mult(g, assistant_tmp));
                         Vector tmp = Vector.mult(g, inputvector);
                         for (int i = 0; i < tmp.getSize(); i++) {
