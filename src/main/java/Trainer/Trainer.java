@@ -84,7 +84,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("G:\\myw2v\\first_tmp"+name+".model");
+                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
                 }
             }
             return md;
@@ -111,7 +111,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("G:\\myw2v\\first_tmp"+name+".model");
+                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
                 }
 
             }
@@ -393,7 +393,7 @@ public class Trainer {
                                 assistant_tmp.vector[i] = assistant_tmp.vector[i] + tmp.vector[i];
                             }
                         }
-                        Vector assistant_tmp = ns.getVector(e.get(window));
+                        Vector assistant_tmp = ns.getVector(e.get(k));
                         double q = active(Vector.mult(inputvector, assistant_tmp));
                         double g = step * (1-q);
                         addinput = Vector.adds(addinput, Vector.mult(g, assistant_tmp));
