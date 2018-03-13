@@ -84,7 +84,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
+                    md.Savemodel("G:\\myw2v\\first_tmp"+name+".model");
                 }
             }
             return md;
@@ -111,7 +111,7 @@ public class Trainer {
                 }
                 if ((double) i / maxloop > k) {
                     k += 0.1;
-                    md.Savemodel("E:\\myw2v\\first_tmp"+name+".model");
+                    md.Savemodel("G:\\myw2v\\first_tmp"+name+".model");
                 }
 
             }
@@ -197,7 +197,6 @@ public class Trainer {
                                 System.out.print("参数向量增量为：" + Vector.mult(g, inputvector) + "\n" + "\n");
                             }
                         }
-
 //                    更新单词向量
                         long t4_tmp = System.currentTimeMillis();
                         for (int i = 0; i < e.size(); i++) {
