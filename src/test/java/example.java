@@ -12,7 +12,7 @@ public class example {
         int size=100;
 
 //        读取语料文件并生成模型
-        Model md=new Model("F:\\w2vcorpus/text8.txt",size,"ns");
+        Model md=new Model("F:\\w2vcorpus/text8.txt",size,"hm");
 //
 //        新建训练类并设定参数
         Trainer tr=new Trainer(md,5,false,0.025);

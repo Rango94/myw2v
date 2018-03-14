@@ -18,8 +18,14 @@ public class Vector {
 
     public Vector(int size){
         double[] vec=new double[size];
+        double to=0;
         for(int i=0;i<size;i++){
             vec[i]=(Math.random()-0.5)/size;
+            to+=vec[i]*vec[i];
+        }
+        to=Math.pow(to,0.5);
+        for(int i=0;i<size;i++){
+            vec[i]=vec[i]/to;
         }
         vector=vec;
         Size=size;
