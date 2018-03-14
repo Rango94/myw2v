@@ -19,7 +19,7 @@ public class Trainer {
     private boolean weatherfill;
     private double step=0.025;
     private double Step=step;
-    private int maxloop=1000;
+    private int maxloop=3000;
     private HashMap<String,Integer> dictionary;
     String sgorcbow=null;
     int hmorneg=0;
@@ -338,10 +338,14 @@ public class Trainer {
                     Vector inputvector = corpusline.get(e);
                     Vector addinput=new Vector(inputvector.getSize(),0);
                     for(String negterm:ns.getsampling(e.get(window),15)){
+//                        System.out.println(negterm);
                         Vector assistant_tmp=ns.getVector(negterm);
                         double q=active(Vector.mult(inputvector,assistant_tmp));
                         double g=step*(-q);
                         addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
+
+//                        System.out.println("term增量为：" + addinput);
+
                         Vector tmp=Vector.mult(g,inputvector);
                         for(int i=0;i<tmp.getSize();i++){
                             assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
