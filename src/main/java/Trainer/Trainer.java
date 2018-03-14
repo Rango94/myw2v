@@ -289,7 +289,7 @@ public class Trainer {
                                 //更新非叶子节点向量
                                 long t3_tmp = System.currentTimeMillis();
                                 for (int i = 0; i < pathvector.getSize(); i++) {
-                                    pathvector.vector[i] = 0.99*pathvector.vector[i] + tmp.vector[i];
+                                    pathvector.vector[i] = pathvector.vector[i] + tmp.vector[i];
                                 }
                                 t3 += System.currentTimeMillis() - t3_tmp;
 
@@ -304,7 +304,7 @@ public class Trainer {
                                 Vector tmp = md.getVector(e.get(window));
                                 if (tmp != null) {
                                     for (int k = 0; k < tmp.getSize(); k++) {
-                                        tmp.vector[k] = 0.99*tmp.vector[k] + addofinput.vector[k];
+                                        tmp.vector[k] = tmp.vector[k] + addofinput.vector[k];
                                     }
                                 } else {
                                     System.out.println("发现单词" + e.get(window) + "没有对应向量");
@@ -354,7 +354,7 @@ public class Trainer {
 
                         Vector tmp=Vector.mult(g,inputvector);
                         for(int i=0;i<tmp.getSize();i++){
-                            assistant_tmp.vector[i]=0.99*assistant_tmp.vector[i]+tmp.vector[i];
+                            assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
                         }
                     }
                     Vector assistant_tmp=ns.getVector(e.get(window));
@@ -363,7 +363,7 @@ public class Trainer {
                     addinput=Vector.adds(addinput,Vector.mult(g,assistant_tmp));
                     Vector tmp=Vector.mult(g,inputvector);
                     for(int i=0;i<tmp.getSize();i++){
-                        assistant_tmp.vector[i]=0.99*assistant_tmp.vector[i]+tmp.vector[i];
+                        assistant_tmp.vector[i]=assistant_tmp.vector[i]+tmp.vector[i];
                     }
                     for(int i=0;i<e.size();i++){
                         if(i==window){
@@ -400,7 +400,7 @@ public class Trainer {
                             addinput = Vector.adds(addinput, Vector.mult(g, assistant_tmp));
                             Vector tmp = Vector.mult(g, inputvector);
                             for (int i = 0; i < tmp.getSize(); i++) {
-                                assistant_tmp.vector[i] = 0.98*assistant_tmp.vector[i] + tmp.vector[i];
+                                assistant_tmp.vector[i] = assistant_tmp.vector[i] + tmp.vector[i];
                             }
                         }
                         Vector assistant_tmp = ns.getVector(e.get(k));
@@ -409,7 +409,7 @@ public class Trainer {
                         addinput = Vector.adds(addinput, Vector.mult(g, assistant_tmp));
                         Vector tmp = Vector.mult(g, inputvector);
                         for (int i = 0; i < tmp.getSize(); i++) {
-                            assistant_tmp.vector[i] = 0.98*assistant_tmp.vector[i] + tmp.vector[i];
+                            assistant_tmp.vector[i] = assistant_tmp.vector[i] + tmp.vector[i];
                         }
                         Vector tmp_term = md.getVector(e.get(window));
                         for (int p = 0; p < addinput.getSize(); p++) {
