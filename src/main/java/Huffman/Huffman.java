@@ -1,6 +1,8 @@
 package Huffman;
 
 import Modelhandler.Vector;
+import com.huaban.analysis.jieba.JiebaSegmenter;
+import com.huaban.analysis.jieba.SegToken;
 import myFile.corpusReader;
 
 import java.io.*;
@@ -89,6 +91,8 @@ public class Huffman {
             "www","x","y","year","years","yes","yet","you","you'd","you'll","you're","you've","youd","young","younger",
             "youngest","your","youre","yours","yourself","yourselves","z","zero","zt","zz"};
     List<String> stopwords=new ArrayList<String>();
+    String language;
+    JiebaSegmenter segmenter = new JiebaSegmenter();
     public int getMaxlenthofhuffman() {
         return maxlenthofhuffman;
     }
@@ -206,12 +210,14 @@ public class Huffman {
         generatetree(corpus,size);
     }
 
-    public Huffman(String corpuspath,int size) {
+    public Huffman(String corpuspath,int size,String language) {
+
+        this.language=language;
         for(String e:stopwords_str){
             stopwords.add(e);
         }
-        HashMap<String, Integer> corpus = readcorpus(corpuspath);
-        generatetree(corpus,size);
+        readcorpus(corpuspath,language);
+        generatetree(dictionary,size);
     }
 
 //  获取单个元素的huffman编码
@@ -337,41 +343,68 @@ public class Huffman {
     }
 
 //  读取语料文件
-    private HashMap<String, Integer> readcorpus(String corpuspath) {
+    private void readcorpus(String corpuspath,String language) {
         try {
-            Reader  br = new InputStreamReader (new FileInputStream( new File(corpuspath)));
-            int tempbyte;
-            String term="";
-            while ((tempbyte = br.read()) != -1) {
-                char w=(char)tempbyte;
-                if(Character.isSpaceChar(w)||tempbyte==10||tempbyte==13){
-                    if(term!=""&& !stopwords.contains(term)){
-                        totalnum++;
-                        if (dictionary.containsKey(term)) {
-                            dictionary.put(term, dictionary.get(term) + 1);
-                        } else {
-                            dictionary.put(term, 1);
+            File F = new File(corpuspath);
+            File[] filelist = F.listFiles();
+            if(language=="cn") {
+                for (File f : filelist) {
+                    if (!f.isDirectory()) {
+                        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+                        String tempbyte="";
+                        String sentence="";
+                        while ((tempbyte = br.readLine()) != null) {
+                            sentence+=tempbyte;
+                        }
+                        br.close();
+                        List<SegToken> words=segmenter.process(sentence, JiebaSegmenter.SegMode.INDEX);
+                        for(SegToken e:words){
+                            if (dictionary.containsKey(e.word)) {
+                                dictionary.put(e.word, dictionary.get(e.word) + 1);
+                            } else {
+                                dictionary.put(e.word, 1);
+                            }
                         }
                     }
-                    term="";
-                }else {
-                    term += String.valueOf(w);
+                }
+            }else{
+                for (File f : filelist) {
+                    if (!f.isDirectory()) {
+                        Reader br = new InputStreamReader(new FileInputStream(f));
+                        int tempbyte;
+                        String term = "";
+                        while ((tempbyte = br.read()) != -1) {
+                            char w = (char) tempbyte;
+                            if (Character.isSpaceChar(w) || tempbyte == 10 || tempbyte == 13) {
+                                if (term != "" && !stopwords.contains(term)) {
+                                    totalnum++;
+                                    if (dictionary.containsKey(term)) {
+                                        dictionary.put(term, dictionary.get(term) + 1);
+                                    } else {
+                                        dictionary.put(term, 1);
+                                    }
+                                }
+                                term = "";
+                            } else {
+                                term += String.valueOf(w);
+                            }
+                        }
+                        br.close();
+                    }
                 }
             }
-            br.close();
-            lowwords=new ArrayList<String>();
-            for(String e:dictionary.keySet()){
-                if(dictionary.get(e)<10){
+            lowwords = new ArrayList<String>();
+            for (String e : dictionary.keySet()) {
+                if (dictionary.get(e) < 10) {
                     lowwords.add(e);
                 }
             }
-            for(String e:lowwords){
+            for (String e : lowwords) {
                 dictionary.remove(e);
             }
-        } catch (IOException e) {
+        } catch(IOException e){
             e.printStackTrace();
         }
-        return dictionary;
     }
 
 //  将语料库转化为标准形式

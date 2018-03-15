@@ -12,23 +12,22 @@ public class example {
         int size=100;
 
 //        读取语料文件并生成模型
-        Model md=new Model("F:\\w2vcorpus/text8.txt",size,"hm");
+        Model md=new Model("F:\\w2vcorpus",size,"hm","eg");
 //
 //        新建训练类并设定参数
-        Trainer tr=new Trainer(md,5,false,0.025);
+        Trainer tr=new Trainer(md,5,false,0.02);
 
 //        训练模型
         md=tr.train("cbow",false);
 
 //        保存模型
 //        System.out.println(Vector.dis(new Vector(new double[]{1,1}).normalization(),new Vector(new double[]{2,2}).normalization()));
-        md.Savemodel("E:\\myw2v\\first_nag.model");
-
+        md.Savemodel("E:\\myw2v\\first_1nag.model");
 
 
 //        读取模型
         Model md1=new Model();
-        md1.Loadmodel("E:\\myw2v\\first_nag.model");
+        md1.Loadmodel("E:\\myw2v\\first_1nag.model");
 //        寻找训练语料中最相近的两个单词
 //        double cha=-1;
 //        for(int i=0;i<md1.getTermnum();i++){

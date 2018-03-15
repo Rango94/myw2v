@@ -18,7 +18,7 @@ public class Model {
     public int termnum=0;
     private List<String> termlist=new ArrayList<String>();
     public int modelcategory=0;
-
+    public String language;
     public static int getSize() {
         return Size;
     }
@@ -27,23 +27,24 @@ public class Model {
         return termlist;
     }
 
-    public Model(String path, int size,String hmorns){
+    public Model(String path, int size,String hmorns,String language){
+        this.language=language;
         if(hmorns.equals("hm")) {
             modelcategory=0;
             System.out.println("building Huffman...");
-            hm = new Huffman(path, size);
-//        hm.notleafstoString();
+            hm = new Huffman(path, size,language);
             System.out.println("initial model...");
             initModel(hm.Termset, size);
             PATH = path;
         }else{
             modelcategory=1;
             System.out.println("building negative sampling...");
-            ns=new nagetive_sampling(path,size);
+            ns=new nagetive_sampling(path,size,language);
             System.out.println("initial model...");
             initModel(ns.getTermlist(), size);
             PATH = path;
         }
+
     }
     public Model(){
 

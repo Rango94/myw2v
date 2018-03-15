@@ -4,12 +4,9 @@ import myFile.corpusReader;
 import myFile.myFilehandler;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class test {
-    public static void main(String[] a) {
-        for(double i=-6;i<6;i+=0.01){
-            System.out.println((int)Math.round(i*100));
-        }
-    }
 }

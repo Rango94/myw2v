@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class Huffmantest {
     public static void main(String[] args){
-        Huffman hm=new Huffman("E:/myw2v/cleardata.txt",100);
+        Huffman hm=new Huffman("E:/myw2v/cleardata.txt",100,"cn");
 //        Model md=new Model();
         hm.leafstoString();
 //        System.out.println(hm.notleafstoString());

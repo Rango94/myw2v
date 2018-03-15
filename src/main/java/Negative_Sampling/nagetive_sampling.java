@@ -80,15 +80,17 @@ public class nagetive_sampling {
     private HashMap<String,Vector> termvector_ass =new HashMap<String, Vector>();
     private int vectorsize;
     private List<String> Termlist=new ArrayList<String>();
+    private String language;
 
 
 
-    public nagetive_sampling(String corpuspath,int size){
+    public nagetive_sampling(String corpuspath,int size,String language){
+        this.language=language;
         vectorsize=size;
         for(String e:stopwords_str){
             stopwords.add(e);
         }
-        readcorpus(corpuspath);
+        readcorpus(corpuspath,language);
         genareteline(dictionary);
     }
 
@@ -149,9 +151,7 @@ public class nagetive_sampling {
         }
     }
 
-
-
-    private HashMap<String, Integer> readcorpus(String corpuspath) {
+    private HashMap<String, Integer> readcorpus(String corpuspath,String language) {
         try {
             Reader br = new InputStreamReader(new FileInputStream( new File(corpuspath)));
             int tempbyte;

@@ -2,20 +2,27 @@ package myFile;
 
 import Modelhandler.Model;
 import Modelhandler.Vector;
+import com.huaban.analysis.jieba.JiebaSegmenter;
+import com.huaban.analysis.jieba.SegToken;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 
 public class corpusReader {
 
-    public Reader br;
     int Windos;
     boolean weatherfill;
     String Path;
     public List<String>  stopwords=new ArrayList<String>();
     int sperate=2000;
+    static HashMap<Integer,Reader> filebr =new HashMap<Integer, Reader>();
+    static HashMap<Integer,BufferedReader> filebr_cn =new HashMap<Integer, BufferedReader>();
+    File[] filelist;
+    JiebaSegmenter segmenter = new JiebaSegmenter();
+
     String[] stopwords_str={"an","'d","'ll","'m","'re","'s","'t","'ve","ZT","ZZ","a","a's","able","about","above","abst","accordance","according","accordingly","across",
             "act","actually","added","adj","adopted","affected","affecting","affects","after","afterwards",
             "again","against","ah","ain't","all","allow","allows","almost","alone","along","already","also",
@@ -79,9 +86,29 @@ public class corpusReader {
             "within","without","won't","wonder","words","work","worked","working","works","world","would","wouldn't",
             "www","x","y","year","years","yes","yet","you","you'd","you'll","you're","you've","youd","young","younger",
             "youngest","your","youre","yours","yourself","yourselves","z","zero","zt","zz"};
-    public corpusReader(String path,int windos,boolean weatherfill, List<String> lowwords){
+    public corpusReader(String path,int windos,boolean weatherfill, List<String> lowwords,String language){
+
+        File F=new File(path);
         try {
-            br = new InputStreamReader (new FileInputStream( new File(path)));
+            filelist=F.listFiles();
+            int num=0;
+            if(filelist!=null) {
+                if(language=="cn") {
+                    for (File e : filelist) {
+                        if (!e.isDirectory()) {
+                            filebr_cn.put(num, new BufferedReader(new InputStreamReader(new FileInputStream(e), "utf-8")));
+                            num++;
+                        }
+                    }
+                }else{
+                    for (File e : filelist) {
+                        if (!e.isDirectory()) {
+                            filebr.put(num, new InputStreamReader(new FileInputStream(e), "utf-8"));
+                            num++;
+                        }
+                    }
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,6 +137,8 @@ public class corpusReader {
             String term="";
             int num=0;
             String[] line=new String[sperate];
+            int idx=(int)(Math.random()* filebr.size());
+            Reader br= filebr.get(idx);
             tempchar=br.read();
             while(tempchar!=-1){
                 char w=(char)tempchar;
@@ -129,7 +158,7 @@ public class corpusReader {
                 tempchar=br.read();
             }
             if(tempchar==-1){
-                br = new InputStreamReader (new FileInputStream( new File(Path)));
+                filebr.put(idx,new InputStreamReader (new FileInputStream(filelist[idx])));
             }
             if(num<sperate-1){
                 for(int i=num;i<sperate;i++){
@@ -168,6 +197,10 @@ public class corpusReader {
             String term="";
             int num=0;
             String[] line=new String[sperate];
+            int idx=(int)(Math.random()* filebr.size());
+            System.out.println(filebr.size());
+            System.out.println(idx);
+            Reader br= filebr.get(idx);
             tempchar=br.read();
             while(tempchar!=-1){
                 char w=(char)tempchar;
@@ -187,7 +220,7 @@ public class corpusReader {
                 tempchar=br.read();
             }
             if(tempchar==-1){
-                br = new InputStreamReader (new FileInputStream( new File(Path)));
+                filebr.put(idx,new InputStreamReader (new FileInputStream(filelist[idx])));
             }
             if(num<sperate-1){
                 for(int i=num;i<sperate;i++){
@@ -210,7 +243,93 @@ public class corpusReader {
         return subcorpus;
     }
 
+    public HashMap<List<String>,Vector> handlesent_cbow_cn(Model mod,int windos){
+        HashMap<List<String>,Vector> subcorpus=new HashMap<List<String>,Vector>();
+        try {
+            String tempchar;
+            String term="";
+            int num=0;
+            int idx=(int)(Math.random()* filebr_cn.size());
+            BufferedReader br= filebr_cn.get(idx);
+            tempchar=br.readLine();
+            String sentence="";
+            while(tempchar!=null && num<10){
+                tempchar=br.readLine();
+                sentence+=tempchar.trim();
+                num++;
+            }
+            if(tempchar==null) {
+                filebr_cn.put(idx, new BufferedReader(new InputStreamReader(new FileInputStream(filelist[idx]))));
+            }
+            List<SegToken> words=segmenter.process(sentence, JiebaSegmenter.SegMode.INDEX);
+            String[] line=new String[words.size()];
+            for(int i=0;i<line.length;i++){
+                line[i]=words.get(i).word;
+            }
+            for (int i = windos; i < line.length - windos; i++) {
+                Vector input = new Vector(mod.getSize(),0);
+                for (int j = i - windos; j < i + windos; j++) {
+                    if (j == i) {
+                        continue;
+                    }
+                    Vector tmp=mod.getVector(line[j]);
+                    if (tmp!=null) {
+                        input = Vector.adds(input,tmp);
+                    }else{
+                        System.out.println("发现单词"+line[j]+"没有对应向量");
+                    }
+                }
+                subcorpus.put(substring(line, i - windos, i + windos+1), input);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return subcorpus;
+    }
 
+    public HashMap<List<String>,Vector> handlesent_sg_cn(Model mod,int windos){
+        HashMap<List<String>,Vector> subcorpus=new HashMap<List<String>,Vector>();
+        try {
+            String tempchar;
+            String term="";
+            int num=0;
+            int idx=(int)(Math.random()* filebr_cn.size());
+            BufferedReader br= filebr_cn.get(idx);
+            tempchar=br.readLine();
+            String sentence="";
+            while(tempchar!=null && num<10){
+                tempchar=br.readLine();
+                sentence+=tempchar.trim();
+                num++;
+            }
+            if(tempchar==null) {
+                filebr_cn.put(idx, new BufferedReader(new InputStreamReader(new FileInputStream(filelist[idx]))));
+            }
+            List<SegToken> words=segmenter.process(sentence, JiebaSegmenter.SegMode.INDEX);
+            String[] line=new String[words.size()];
+            for(int i=0;i<line.length;i++){
+                line[i]=words.get(i).word;
+            }
+            for (int i = windos; i < line.length - windos; i++) {
+                Vector input = new Vector(mod.getSize(),0);
+                for (int j = i - windos; j < i + windos; j++) {
+                    if (j == i) {
+                        continue;
+                    }
+                    Vector tmp=mod.getVector(line[j]);
+                    if (tmp!=null) {
+                        input = Vector.adds(input,tmp);
+                    }else{
+                        System.out.println("发现单词"+line[j]+"没有对应向量");
+                    }
+                }
+                subcorpus.put(substring(line, i - windos, i + windos+1), input);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return subcorpus;
+    }
 
     private List<String> substring(String[] ob,int start,int end){
         List<String> out=new ArrayList<String>();

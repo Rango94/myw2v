@@ -45,11 +45,11 @@ public class Trainer {
         if(hmorneg==0) {
             this.hm = md.hm;
             this.dictionary = hm.dictionary;
-            cr=new corpusReader(md.PATH,windos,weatherfill,md.hm.lowwords);
+            cr=new corpusReader(md.PATH,windos,weatherfill,md.hm.lowwords,md.language);
         }else{
             this.ns=md.ns;
             this.dictionary=ns.dictionary;
-            cr=new corpusReader(md.PATH,windos,weatherfill,md.ns.lowwords);
+            cr=new corpusReader(md.PATH,windos,weatherfill,md.ns.lowwords,md.language);
         }
 
         intsigmoid();
@@ -64,8 +64,8 @@ public class Trainer {
             System.out.println(name);
             for (int i = 0; i < maxloop; i++) {
                 trainline_hm(sgorcbow,static_window);
-                System.out.println(name);
                 if (i % 2 == 0) {
+                    System.out.println(name);
                     step = Step * (1 - (double) i / maxloop);
                     if(step<Step*0.0001){
                         step=Step*0.0001;
@@ -75,13 +75,23 @@ public class Trainer {
                     System.out.println("更新非叶子节点向量的时间：" + Long.toString(t3));
                     System.out.println("更新单词向量的时间：" + Long.toString(t4));
                     System.out.println(md.hm.getNodevector(new byte[]{1, 0, 1}));
-                    System.out.println(md.getVector("mother"));
-                    System.out.println(md.getVector("father"));
-                    System.out.println(md.dis("mother", "father"));
-                    System.out.println(md.getVector("king"));
-                    System.out.println(md.getVector("queen"));
-                    System.out.println(md.dis("king", "queen"));
-                    System.out.println(md.dis("mother", "queen"));
+                    if(md.language=="eg") {
+                        System.out.println(md.getVector("mother"));
+                        System.out.println(md.getVector("father"));
+                        System.out.println(md.dis("mother", "father"));
+                        System.out.println(md.getVector("king"));
+                        System.out.println(md.getVector("queen"));
+                        System.out.println(md.dis("king", "queen"));
+                        System.out.println(md.dis("mother", "queen"));
+                    }else{
+                        System.out.println(md.getVector("汽车"));
+                        System.out.println(md.getVector("轿车"));
+                        System.out.println(md.dis("汽车", "轿车"));
+                        System.out.println(md.getVector("篮球"));
+                        System.out.println(md.getVector("足球"));
+                        System.out.println(md.dis("篮球", "足球"));
+                        System.out.println(md.dis("篮球", "汽车"));
+                    }
                     System.out.println("training has completed " + Double.toString((double) i / maxloop * 100) + "%");
                     System.out.println("---------------------------------");
                 }
@@ -96,22 +106,31 @@ public class Trainer {
             String name=sgorcbow+"_"+Integer.toString(hmorneg)+"_"+Boolean.toString(static_window);
             System.out.println(name);
             for (int i = 0; i < maxloop; i++) {
-                System.out.println(name);
                 trainline_neg(sgorcbow,static_window);
                 if (i % 2 == 0) {
+                    System.out.println(name);
                     step = Step * (1 - (double) i / maxloop);
                     if(step<Step*0.0001){
                         step=Step*0.0001;
                     }
                     System.out.println(step);
-                    System.out.println(ns.getVector("mother"));
-                    System.out.println(md.getVector("mother"));
-                    System.out.println(md.getVector("father"));
-                    System.out.println(md.dis("mother", "father"));
-                    System.out.println(md.getVector("king"));
-                    System.out.println(md.getVector("queen"));
-                    System.out.println(md.dis("king", "queen"));
-                    System.out.println(md.dis("mother", "queen"));
+                    if(md.language=="eg") {
+                        System.out.println(md.getVector("mother"));
+                        System.out.println(md.getVector("father"));
+                        System.out.println(md.dis("mother", "father"));
+                        System.out.println(md.getVector("king"));
+                        System.out.println(md.getVector("queen"));
+                        System.out.println(md.dis("king", "queen"));
+                        System.out.println(md.dis("mother", "queen"));
+                    }else{
+                        System.out.println(md.getVector("汽车"));
+                        System.out.println(md.getVector("轿车"));
+                        System.out.println(md.dis("汽车", "轿车"));
+                        System.out.println(md.getVector("篮球"));
+                        System.out.println(md.getVector("足球"));
+                        System.out.println(md.dis("篮球", "足球"));
+                        System.out.println(md.dis("篮球", "汽车"));
+                    }
                     System.out.println("training has completed " + Double.toString((double) i / maxloop * 100) + "%");
                     System.out.println("---------------------------------");
                 }
@@ -136,7 +155,12 @@ public class Trainer {
 //        System.out.println(window);
 //        int window=Window;
         if(sgorcbow.equals("cbow")) {
-            HashMap<List<String>, Vector> corpusline = cr.handlesent_cbow(md, window);
+            HashMap<List<String>, Vector> corpusline;
+            if(md.language.equals("cn")){
+                corpusline=cr.handlesent_cbow_cn(md,window);
+            }else {
+                corpusline = cr.handlesent_cbow(md, window);
+            }
             if (corpusline != null) {
                 for (List<String> e : corpusline.keySet()) {
                     int termcont = dictionary.get(e.get(window));
@@ -229,7 +253,12 @@ public class Trainer {
                 System.out.println("语料库为空");
             }
         }else{
-            HashMap<List<String>, Vector> corpusline = cr.handlesent_sg(md, window);
+            HashMap<List<String>, Vector> corpusline;
+            if(md.language.equals("cn")){
+                corpusline = cr.handlesent_sg_cn(md, window);
+            }else {
+                corpusline = cr.handlesent_sg(md, window);
+            }
             if (corpusline != null) {
                 for (List<String> e : corpusline.keySet()) {
                     int termcont = dictionary.get(e.get(window));
