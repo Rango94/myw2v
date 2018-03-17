@@ -3,7 +3,8 @@ a test<br>
 a practice<br>
 trying to complete a word2vec with java.<br>
 it's a simple word2vec, although the project has no errors, but there are some questions with its correctness.<br>
-项目中构建了霍夫曼树，实现了cbow和skip-gram模型。目前还没有实现负采样训练方法。<br>
+项目中构建了霍夫曼树，实现了cbow和skip-gram模型。<br>
+负采样方法已经实现，但实际效果很差<br>
 run example.java<br>
 
 ok it's work, happy like a child.<br>
